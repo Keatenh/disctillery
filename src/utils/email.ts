@@ -23,11 +23,11 @@ export function sendEmail(
     html: body,
   };
 
-  transport.sendMail(mailOpts, (err, info) => {
+  transport.sendMail(mailOpts, (err, _info) => {
     if (err) {
       console.error(err);
     } else {
-      console.log(`Email sent: ${info.response}`);
+      console.log(`EMAIL SENT!`);
     }
   });
 }

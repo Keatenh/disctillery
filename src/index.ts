@@ -3,10 +3,10 @@ import axios from "axios";
 import { parseString as xmlParseString } from "xml2js";
 import tableify from "tableify";
 import { RSSData, RSSEntry, Wantlist, Output } from "./models";
-import config from "./config";
+import { checkEnv } from "./config";
 import { comparePriorDate, getDateRangeString, sendEmail } from "./utils";
 
-config; //Pulling vars from file
+checkEnv();
 
 axios.defaults.baseURL = "https://discogs.com";
 const rssPath = "/sell/mplistrss";
@@ -34,6 +34,7 @@ async function main(): Promise<void> {
       // Convert XML
       xmlParseString(xml.data, (_err, rssData: RSSData) => {
         // Filter entries by date updated + currency
+        //TODO: filter on budget param?
         const filtered = rssData.feed.entry?.filter(
           (e) =>
             comparePriorDate(e.updated[0], expirePeriod) &&

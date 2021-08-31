@@ -1,0 +1,29 @@
+name: email
+
+on:
+  schedule:
+    - cron: "30 13 * * *"
+  workflow_dispatch:
+# TODO: matrix strategy over all environments?
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: "00"
+    env:
+      DST_CURRENCY: USD
+      DST_DAYS_BACK: "2"
+      DST_DC_USR: ${{ secrets.DST_DC_USR }}
+      DST_EMAIL_TO: ${{ secrets.DST_EMAIL_TO }}
+      DST_EMAIL_PW: ${{ secrets.DST_EMAIL_PW }}
+      DST_EMAIL_SVC: ${{ secrets.DST_EMAIL_SVC }}
+      DST_EMAIL_USR: ${{ secrets.DST_EMAIL_USR }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate email
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build
+      - run: npm start
