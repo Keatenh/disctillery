@@ -5,6 +5,7 @@ import tableify from "tableify";
 import { RSSData, RSSEntry, Wantlist, Output } from "./models";
 import { checkEnv } from "./config";
 import { comparePriorDate, getDateRangeString, sendEmail } from "./utils";
+import { filterRSSEntries } from "./filter";
 
 checkEnv();
 
@@ -35,11 +36,10 @@ async function main(): Promise<void> {
       xmlParseString(xml.data, (_err, rssData: RSSData) => {
         // Filter entries by date updated + currency
         //TODO: filter on budget param?
-        const filtered = rssData.feed.entry?.filter(
-          (e) =>
-            comparePriorDate(e.updated[0], expirePeriod) &&
-            e.summary[0]._.startsWith(currency)
-        );
+        const filtered = filterRSSEntries(rssData.feed.entry, {
+          maxDays: expirePeriod,
+          currency,
+        });
         entries.push(...filtered);
       });
     }
