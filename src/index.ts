@@ -29,19 +29,25 @@ async function main(): Promise<void> {
   wantlist.getReleases(user, {}, async (_err: unknown, data: Wantlist) => {
     // Use release IDs to check RSS feed:
     for (const release of data.wants) {
-      const xml = await axios.get(rssPath, {
-        params: { release_id: release.id },
-      });
-      // Convert XML
-      xmlParseString(xml.data, (_err, rssData: RSSData) => {
-        // Filter entries by date updated + currency
-        //TODO: filter on budget param?
-        const filtered = filterRSSEntries(rssData.feed.entry, {
-          maxDays: expirePeriod,
-          currency,
+      try {
+        const xml = await axios.get(rssPath, {
+          params: { release_id: release.id },
         });
-        entries.push(...filtered);
-      });
+        // Convert XML
+        xmlParseString(xml.data, (_err, rssData: RSSData) => {
+          // Filter entries by date updated + currency
+          //TODO: filter on budget param?
+          const filtered = filterRSSEntries(rssData.feed.entry, {
+            maxDays: expirePeriod,
+            currency,
+          });
+          entries.push(...filtered);
+        });
+      } catch (e) {
+        console.warn(
+          `WARN: Could not verify recent releases for ${release.resource_url}`
+        );
+      }
     }
     console.log(`MATCHED ${entries.length} ENTRIES!`);
     const out = entries.map((e): Output => {
